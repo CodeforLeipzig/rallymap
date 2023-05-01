@@ -19,9 +19,7 @@
 		<div id="map" />
 
 		<script type="text/javascript" src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
-		<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 		
 		<script>
 
@@ -51,10 +49,25 @@
 
 
 			var initDemotrailsLayer = function() {
-				$.getJSON("demotrails.geojson", function(data){
-				    var demotrailsLayer = L.geoJson(data, {style: style});
-					demotrailsLayer.addTo(map);
-				});
+				fetch('https://codeforleipzig.github.io/mobmap/demotrails.geojson')
+					.then(response => response.json())
+					.then(function (data){
+						L.geoJSON(data, {
+							style: (feature) => {
+								return {
+									stroke: true,
+									color: "#9933ff",
+									weight: 2,
+									opacity: 0.7,
+									fill: true,
+									fillColor: "#7300e6",
+									fillOpacity: 0.15,
+									smoothFactor: 0.5,
+									interactive: false,
+								};
+							},
+						}).addTo(map);
+					});
 			};    
 			initDemotrailsLayer();
 			
@@ -71,11 +84,9 @@
 				}
 			}
 
-			$.ajaxSetup({
-			    scriptCharset: "utf-8",
-			    contentType: "application/json; charset=utf-8"
-			});
-			$.getJSON("demostops.geojson", function(data){
+			fetch('https://codeforleipzig.github.io/mobmap/demostops.geojson')
+			.then(response => response.json())
+			.then(function (data){
 			    var demostopLayer = L.geoJson(data, {style: style});
 			    
 			    L.timeDimension.layer.geoJson(demostopLayer).addTo(map);
