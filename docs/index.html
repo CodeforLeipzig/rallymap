@@ -1,0 +1,150 @@
+<html>
+	<head>
+		<title>Angemeldete Demonstrationen in Leipzig</title>
+		<meta charset="UTF-8"/>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+		
+		<link rel="stylesheet" href="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.control.min.css" />
+		
+		<style>
+			#map{ height: 100% }
+			.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+			.legend { text-align: left; line-height: 18px; color: #555; } .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }			
+		</style>
+	</head>
+	<body>
+		<div id="progress"><div id="progressbar"></div></div>
+		<div id="map" />
+
+		<script type="text/javascript" src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+		<script src="http://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+		
+		<script>
+
+			function style(feature) {
+				return {
+					fillColor: '#FFEDA0',
+					weight: 2,
+					opacity: 1,
+					color: 'white',
+					fillOpacity: 1
+				};
+			}
+		
+			var map = L.map('map', {
+				timeDimension: true,
+			    timeDimensionOptions: {
+			        timeInterval: "1961/1991",
+			        period: "P1Y"
+			    },
+			    timeDimensionControl: true
+			}).setView([51.3406321,12.3747329], 14);
+			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+				{
+					attribution: 'Map data &#64; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors</a>'
+				}
+			).addTo(map);
+
+			var demotrailsLayer;
+			var initDemotrailsLayer = function() {
+				demotrailsLayer = new L.geoJson("demotrails.geojson");
+				demotrailsLayer.addTo(map);
+			};    
+			initDemotrailsLayer();
+			
+			var progress = document.getElementById('progress');
+			var progressBar = document.getElementById('progressbar');
+
+			function updateProgressBar(processed, total, elapsed, layersArray) {
+				if (elapsed > 1000) {
+					progress.style.display = 'block';
+					progressBar.style.width = Math.round(processed / total * 100) + '%';
+				}
+				if (processed === total) {
+					progress.style.display = 'none';
+				}
+			}
+
+			$.ajaxSetup({
+			    scriptCharset: "utf-8",
+			    contentType: "application/json; charset=utf-8"
+			});
+			$.getJSON("demostops.geojson", function(data){
+			    var demostopLayer = L.geoJson(data, {style: style});
+			    
+			    L.timeDimension.layer.geoJson(demostopLayer).addTo(map);
+
+				var layerPopup;
+				var registerLayerMouseOver = function() {
+					demostopLayer.on('mouseover', function(e) {
+						var coordinates = e.layer.feature.geometry.coordinates;
+						var swapped_coordinates = [coordinates[1], coordinates[0]];
+						if (map) {
+							var props = e.layer.feature.properties
+							layerPopup = L.popup()
+								.setLatLng(swapped_coordinates)
+								.setContent(props.kurztitel)
+								.openOn(map);
+						}
+						highlightFeature(e);
+					});
+				};
+				registerLayerMouseOver();
+				var registerLayerMouseOut = function() {
+					demostopLayer.on('mouseout', function (e) {
+						if (layerPopup && map) {
+							map.closePopup(layerPopup);
+							layerPopup = null;
+							resetHighlight(e);
+						}
+					});
+				};
+				registerLayerMouseOut();		
+
+			  });			
+						
+			// control that shows state info on hover
+			var info = L.control();
+		
+			info.onAdd = function (map) {
+				this._div = L.DomUtil.create('div', 'info');
+				this.update();
+				return this._div;
+			};
+		
+			info.update = function (props) {
+				var htmlInner = '<div style="width: 300px;"><h4>Fotos</h4>'; 
+				if(props) {
+					htmlInner += '<h4>' + props.kurztitel + '</h4>'; 
+				} else {
+					htmlInner += '<h4>Hovere &uuml;ber einen Marker</h4>'
+				}
+				if(props) {
+					htmlInner += props["locationName"];
+				}
+				htmlInner += '</div>';
+				this._div.innerHTML = htmlInner;
+			};
+		
+			info.addTo(map);
+			
+			function highlightFeature(e) {
+				var layer = e.target;
+				if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+					layer.bringToFront();
+				}
+		
+				info.update(e.layer.feature.properties);
+			}
+			
+			function resetHighlight(e) {
+				info.update();
+			}
+			
+		</script>
+	</body>
+</html>

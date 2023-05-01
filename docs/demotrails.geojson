@@ -1,0 +1,48 @@
+{
+    "type": "FeatureCollection",
+    "features": [{
+        "type": "Feature",
+        "properties": {
+            "lfd. Nr": 1,
+            "Datum": "24.03.2023",
+            "angezeigter Ort / Route": "Augustusplatz, Opernseite - Paulinum - Kurt-Masur-Platz - Schillerstraße - oberer Martin-Luther-Ring - Zwiku vor dem Neuen Rathaus - Martin-Luther-Ring (Innenring) - Dittrichring (Innenring) - Thomaskirchhof - Thomasgasse - Markt - Katharinenstraße - Brühl - Am Hallischen Tor - Willy-Brandt-Platz (Innenring) - Georgiring (Innenring) - Augustusplatz (Innenring) - Augustusplatz, Opernseite",
+            "angezeigte Zeit (von; bis)": "10:00 Uhr bis 12:00 Uhr",
+            "Veranstalter": "ver.di Bezirk Leipzig Nordsachsen",
+            "Art": "Aufzug",
+            "Thema/Motto": "Tarifrunde ÖD 2023 - Zusammen geht mehr",
+            "Teilnehmer angezeigt": 1000,
+            "Einsatzkräfte": null,
+            "festgestellte Verstöße gegen versammlungsrechtliche Beschränkungen und infektionsschutzrechtliche Regelungen": null,
+            "Strafanzeigen (Anzahl Vorwurf/ Straftatbestand/Anzahl Tatverdächtige)": null,
+            "Ordnungswidrigkeiten (Anzahl/Vorwurf/Ordnungswidrigkeitentatbestand/Anzahl Betroffene)": null,
+            "Anzahl Identitätsfeststellungen": null,
+            "Teilnehmer festgestellt": null,
+            "Bemerkungen": []
+        },
+        "geometry": {
+            "coordinates": [
+                [
+                    [12.381107684704887, 51.33946768523353],
+                    [12.381982884694452, 51.339236015437336],
+                    [12.382594421819306, 51.34189111199774],
+                    [12.38058281998704, 51.34362012861982],
+                    [12.376842538593024, 51.343446498841814],
+                    [12.3753365, 51.3430291],
+                    [12.3749681, 51.3423697],
+                    [12.374719505671266, 51.34053500147306],
+                    [12.3738232, 51.3398765],
+                    [12.372259826414592, 51.33892430189036],
+                    [12.371611107546471, 51.338543861925956],
+                    [12.371419130068205, 51.33723731748722],
+                    [12.372753590231213, 51.33581600674796],
+                    [12.3748989, 51.3363985],
+                    [12.3763538, 51.3368644],
+                    [12.3786894, 51.3374464],
+                    [12.379202411621337, 51.33904925],
+                    [12.381107684704887, 51.33946768523353]
+                ]
+            ],
+            "type": "Polygon"
+        }
+    }]
+}
