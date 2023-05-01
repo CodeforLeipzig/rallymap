@@ -52,21 +52,30 @@
 				fetch('https://codeforleipzig.github.io/mobmap/demotrails.geojson')
 					.then(response => response.json())
 					.then(function (data){
-						L.geoJSON(data, {
+						var demotrailsLayer = L.geoJSON(data, {
 							style: (feature) => {
 								return {
 									stroke: true,
 									color: "#9933ff",
-									weight: 2,
-									opacity: 0.7,
-									fill: true,
-									fillColor: "#7300e6",
-									fillOpacity: 0.15,
+									weight: 6,
+									opacity: 1.0,
+									fill: false,
 									smoothFactor: 0.5,
-									interactive: false,
+									interactive: true,
 								};
 							},
-						}).addTo(map);
+						});
+						demotrailsLayer.addTo(map);
+
+						var layerPopup;
+						demotrailsLayer.on('mouseover', function(e) {
+							highlightFeature(e);
+						});
+						demotrailsLayer.on('mouseout', function (e) {
+							if (map) {
+								//resetHighlight(e);
+							}
+						});
 					});
 			};    
 			initDemotrailsLayer();
@@ -88,36 +97,27 @@
 			.then(response => response.json())
 			.then(function (data){
 			    var demostopLayer = L.geoJson(data, {style: style});
-			    
-			    L.timeDimension.layer.geoJson(demostopLayer).addTo(map);
+			    demostopLayer.addTo(map);
+			    //L.timeDimension.layer.geoJson(demostopLayer).addTo(map);
 
 				var layerPopup;
-				var registerLayerMouseOver = function() {
-					demostopLayer.on('mouseover', function(e) {
-						var coordinates = e.layer.feature.geometry.coordinates;
-						var swapped_coordinates = [coordinates[1], coordinates[0]];
-						if (map) {
-							var props = e.layer.feature.properties
-							layerPopup = L.popup()
-								.setLatLng(swapped_coordinates)
-								.setContent(props.kurztitel)
-								.openOn(map);
-						}
-						highlightFeature(e);
-					});
-				};
-				registerLayerMouseOver();
-				var registerLayerMouseOut = function() {
-					demostopLayer.on('mouseout', function (e) {
-						if (layerPopup && map) {
-							map.closePopup(layerPopup);
-							layerPopup = null;
-							resetHighlight(e);
-						}
-					});
-				};
-				registerLayerMouseOut();		
-
+				demostopLayer.on('mouseover', function(e) {
+					var coordinates = e.layer.feature.geometry.coordinates;
+					var swapped_coordinates = [coordinates[1], coordinates[0]];
+					if (map) {
+						var props = e.layer.feature.properties
+						layerPopup = L.popup({ offset: [0, -30] })
+							.setLatLng(swapped_coordinates)
+							.setContent(props.locationName)
+							.openOn(map);
+					}
+				});
+				demostopLayer.on('mouseout', function (e) {
+					if (map && layerPopup) {
+						//map.closePopup(layerPopup);
+						//layerPopup = null;
+					}
+				});
 			  });			
 						
 			// control that shows state info on hover
@@ -130,14 +130,28 @@
 			};
 		
 			info.update = function (props) {
-				var htmlInner = '<div style="width: 300px;"><h4>Fotos</h4>'; 
+				var htmlInner = '<div style="width: 300px;">'; 
 				if(props) {
-					htmlInner += '<h4>' + props.kurztitel + '</h4>'; 
+					if (props.locationName) {
+						htmlInner += '<h4>' + props.locationName + '</h4>'; 
+					}
+					var fieldFun = (key) => {
+						if (props[key]) {
+							htmlInner += '<div><b>' + key + '</b>: ' + props[key] + '</div><br />';
+						}
+					}
+					var fields = [
+						"lfd. Nr", "Datum", "angezeigter Ort / Route", "angezeigte Zeit (von; bis)",
+            			"Veranstalter", "Art", "Thema/Motto", "Teilnehmer angezeigt", "Einsatzkräfte",
+            			"festgestellte Verstöße gegen versammlungsrechtliche Beschränkungen und infektionsschutzrechtliche Regelungen",
+            			"Strafanzeigen (Anzahl Vorwurf/ Straftatbestand/Anzahl Tatverdächtige)",
+            			"Ordnungswidrigkeiten (Anzahl/Vorwurf/Ordnungswidrigkeitentatbestand/Anzahl Betroffene)",
+            			"Anzahl Identitätsfeststellungen", "Teilnehmer festgestellt", "Bemerkungen"
+					];
+					fields.forEach(field => fieldFun(field));	
+
 				} else {
 					htmlInner += '<h4>Hovere &uuml;ber einen Marker</h4>'
-				}
-				if(props) {
-					htmlInner += props["locationName"];
 				}
 				htmlInner += '</div>';
 				this._div.innerHTML = htmlInner;
