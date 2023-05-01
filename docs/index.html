@@ -43,16 +43,18 @@
 			    },
 			    timeDimensionControl: true
 			}).setView([51.3406321,12.3747329], 14);
-			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 				{
-					attribution: 'Map data &#64; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors</a>'
+					attribution: 'Map data &#64; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors</a>'
 				}
 			).addTo(map);
 
-			var demotrailsLayer;
+
 			var initDemotrailsLayer = function() {
-				demotrailsLayer = new L.geoJson("demotrails.geojson");
-				demotrailsLayer.addTo(map);
+				$.getJSON("demotrails.geojson", function(data){
+				    var demotrailsLayer = L.geoJson(data, {style: style});
+					demotrailsLayer.addTo(map);
+				});
 			};    
 			initDemotrailsLayer();
 			
