@@ -1,0 +1,108 @@
+<html>
+	<head>
+		<title>Angemeldete Versammlungen in Leipzig</title>
+		<meta charset="UTF-8"/>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+
+		<link rel="stylesheet" href="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.control.min.css" />
+
+		<style>
+			#map{ height: 100% }
+			.info { padding: 6px 8px; font: 14px/16px Arial, Helvetica, sans-serif; background: white; background: rgba(255,255,255,0.8); box-shadow: 0 0 15px rgba(0,0,0,0.2); border-radius: 5px; } .info h4 { margin: 0 0 5px; color: #777; }
+			.legend { text-align: left; line-height: 18px; color: #555; } .legend i { width: 18px; height: 18px; float: left; margin-right: 8px; opacity: 0.7; }
+		</style>
+	</head>
+	<body>
+		<div id="map" />
+
+		<script type="text/javascript" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script>
+
+		<script>
+
+      var rallys = $rallysPlaceholder
+
+			var map = L.map('map').setView([51.3406321,12.3747329], 12);
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+				{
+					attribution: 'Map data &#64; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors</a>'
+				}
+			).addTo(map);
+
+
+      rallys.forEach((rally) => {
+        var demotrailsLayer = L.geoJSON(rally, {
+          style: (feature) => {
+            return {
+              color: rally.features[0].properties.colorHex,
+              weight: 5,
+              opacity: 0.8
+            };
+          },
+        });
+        demotrailsLayer.addTo(map);
+
+        demotrailsLayer.on('mouseover', function (e) {
+          highlightFeature(e);
+        });
+        demotrailsLayer.on('mouseout', function (e) {
+          resetHighlight(e);
+        });
+      });
+
+			// control that shows state info on hover
+			var info = L.control();
+
+			info.onAdd = function (map) {
+				this._div = L.DomUtil.create('div', 'info');
+				this.update();
+				return this._div;
+			};
+
+			info.update = function (props) {
+				var htmlInner = '<div style="width: 300px;">';
+				if(props) {
+					if (props.locationName) {
+						htmlInner += '<h4>' + props.locationName + '</h4>';
+					}
+					var fieldFun = (key) => {
+						if (props[key]) {
+							htmlInner += '<div><b>' + key + '</b>: ' + props[key] + '</div><br />';
+						}
+					}
+					var fields = [
+            "lfd. Nr", "Datum", "angezeigter Ort / Route", "angezeigte Zeit (von; bis)", "Veranstalter", "Art", "Thema/Motto", "Teilnehmer angezeigt", "Teilnehmer festgestellt", "Bemerkungen"
+          ];
+					fields.forEach(field => fieldFun(field));
+
+				} else {
+					htmlInner += '<h4>Mit dem Mauszeiger über einen Marker/Strecke gehen, um Details anzuzeigen</h4>'
+				}
+				htmlInner += '</div>';
+				this._div.innerHTML = htmlInner;
+			};
+
+			info.addTo(map);
+
+			function highlightFeature(e) {
+				var layer = e.target;
+				if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+					layer.bringToFront();
+				}
+        layer.setStyle({weight: 7, opacity: 1.0});
+
+				info.update(e.layer.feature.properties);
+			}
+
+			function resetHighlight(e) {
+        var layer = e.target;
+
+        layer.setStyle({weight: 5, opacity: 0.8});
+
+				info.update();
+			}
+		</script>
+	</body>
+</html>
