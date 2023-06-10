@@ -26,13 +26,12 @@
 
     .logo {
       position: fixed;
-      bottom: 20px;
-      right: 0px;
+      bottom: 10px;
+      right: -10px;
     }
 
     .lab-logo {
-      opacity: 0.66;
-      width: 150px;
+      width: 100px;
     }
 
     .leaflet-control-zoom {
@@ -91,7 +90,6 @@
     logo.addTo(map);
 
     L.control.calendar({
-      minDate: '2023-03-01',
       onSelectDate: (value) => onSelectDate(value),
       position: 'topleft',
       triggerFunctionOnLoad: true
