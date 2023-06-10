@@ -7,7 +7,7 @@ import time
 
 script_dir = os.path.dirname(__file__) # Script directory
 ORS_API_KEY = os.getenv('ORS_API_KEY')
-LEIPZIG = 'Leipzig, '
+CITY = 'Leipzig'
 
 nominatimUrl = 'https://nominatim.openstreetmap.org/search.php?format=jsonv2&q='
 orsGeocodeUrl = f'https://api.openrouteservice.org/geocode/search?api_key={ORS_API_KEY}&text='
@@ -31,9 +31,9 @@ with open(inputCsv) as csvfile:
 
     # only one location is given, use ORS Geocode endpoint to get GeoJSON for rally
     if len(locations) == 1:
-      print(f'  Loading GeoJSON for location "{LEIPZIG}{locations[0]}"...')
+      print(f'  Loading GeoJSON for location "{locations[0]}, {CITY}"...')
       orsHeaders = {'Authorization': f'Bearer {ORS_API_KEY}'}
-      orsResponse = requests.get(orsGeocodeUrl + LEIPZIG + locations[0], headers=orsHeaders)
+      orsResponse = requests.get(orsGeocodeUrl + locations[0] + ', ' + CITY, headers=orsHeaders)
       rallyGeojson = json.loads(orsResponse.text)
 
     # a route is given
@@ -41,9 +41,9 @@ with open(inputCsv) as csvfile:
     # use coordinates with ORS Directions endpoint to get GeoJSON for rally
     else:
       for location in rallyCsv[3].split(', '):
-        print(f'  Resolving coordinates for location "{LEIPZIG}{location}"...')
+        print(f'  Resolving coordinates for location "{CITY}, {location}"...')
         time.sleep(1.1)
-        nominatimResponse = requests.get(nominatimUrl + LEIPZIG + location)
+        nominatimResponse = requests.get(nominatimUrl + location + ', ' + CITY)
         responseJson = nominatimResponse.json()
         print('    lat: ' + responseJson[0].get('lat'))
         print('    lon: ' + responseJson[0].get('lon'))
