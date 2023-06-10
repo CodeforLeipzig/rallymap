@@ -56,6 +56,10 @@ with open(inputCsv) as csvfile:
       orsResponse = requests.post(orsDirectionsUrl, headers=orsHeaders, data=json.dumps(routeJson))
       rallyGeojson = json.loads(orsResponse.text)
 
+    # remove unnecessary GeoJSON features
+    if len(rallyGeojson['features']) > 1:
+      del rallyGeojson['features'][1:]
+
     rallyGeojson['features'][0]['properties']['lfd. Nr'] = rallyCsv[0]
     rallyGeojson['features'][0]['properties']['Datum'] = rallyCsv[1]
     rallyGeojson['features'][0]['properties']['angezeigter Ort / Route'] = rallyCsv[2]
