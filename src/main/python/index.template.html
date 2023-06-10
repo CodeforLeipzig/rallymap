@@ -9,6 +9,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet"
+    href="https://rawcdn.githack.com/antoniovlx/leaflet-calendar/251d645b2b852ff86cc4b66d4b1d4a4866827efa/css/leaflet-calendar.css" />
   <style>
     body {
       padding: 0;
@@ -37,6 +39,19 @@
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5) !important;
       border: none !important;
     }
+
+    [type="date"] {
+      background: none;
+    }
+
+    #input-control-date-picker {
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-icon,
+    .next-icon {
+      background-color: unset;
+    }
   </style>
 </head>
 
@@ -45,12 +60,20 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script
+    src="https://rawcdn.githack.com/antoniovlx/leaflet-calendar/251d645b2b852ff86cc4b66d4b1d4a4866827efa/js/leaflet-calendar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
 
   <script>
 
     var rallys = [];
+    var rallysLayerGroup = L.layerGroup();
 
-    var map = L.map('map').setView([51.3406321, 12.3747329], 12);
+    var map = L.map('map', { zoomControl: false }).setView([51.3406321, 12.3747329], 12);
+
+    L.control.zoom({
+      position: 'bottomleft'
+    }).addTo(map);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
       {
@@ -67,21 +90,36 @@
     }
     logo.addTo(map);
 
-    rallys.forEach((rally) => {
-      var rallyLayer = L.geoJSON(rally, {
-        style: (feature) => {
-          return {
-            color: rally.features[0].properties.colorHex,
-            weight: 5,
-            opacity: 0.8
-          };
-        },
+    L.control.calendar({
+      minDate: '2023-03-01',
+      onSelectDate: (value) => onSelectDate(value),
+      position: 'topleft',
+      triggerFunctionOnLoad: true
+    }).addTo(this.map);
+
+    function onSelectDate(value) {
+      var dateSelected = moment(value, "YYYY-MM-DD");
+      rallysLayerGroup.clearLayers();
+      rallys.forEach((rally) => {
+        var dateRally = moment(rally.features[0].properties.Datum, "D/M/YY");
+        if (dateRally.isSame(dateSelected)) {
+          var rallyLayer = L.geoJSON(rally, {
+            style: (feature) => {
+              return {
+                color: rally.features[0].properties.colorHex,
+                weight: 5,
+                opacity: 0.8
+              };
+            },
+          });
+          rallyLayer.bindPopup(function (layer) {
+            return rallyInfo(layer);
+          });
+          rallysLayerGroup.addLayer(rallyLayer);
+        }
       });
-      rallyLayer.bindPopup(function (layer) {
-        return rallyInfo(layer);
-      });
-      rallyLayer.addTo(map);
-    });
+      rallysLayerGroup.addTo(map);
+    };
 
     function rallyInfo(layer) {
       var htmlInner = '<p>';
