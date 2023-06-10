@@ -74,7 +74,7 @@ with open(inputCsv) as csvfile:
     i = i + 1
 
   indexHtml = open(os.path.join(script_dir, '../../../docs/index.html'), 'w')
-  with open(os.path.join(script_dir, 'index.html.template'), 'r') as htmlTemplate:
+  with open(os.path.join(script_dir, 'index.template.html'), 'r') as htmlTemplate:
     for line in htmlTemplate:
-      indexHtml.write(line.replace('$rallysPlaceholder', json.dumps(rallysJson)))
+      indexHtml.write(line.replace('var rallys = [];', f'var rallys = {json.dumps(rallysJson)};'))
   indexHtml.close()
