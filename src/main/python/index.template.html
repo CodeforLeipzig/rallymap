@@ -1,7 +1,10 @@
-<html>
+<!DOCTYPE html>
+<html lang="de">
 
 <head>
   <title>Versammlungsgeschehen in Leipzig</title>
+  <meta name="description" content="Demo zur Visualisierung von angemeldeten Versammlungen in Leipzig.">
+  <meta name="author" content="Marvin Frommhold">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -19,13 +22,15 @@
       width: 100vw;
     }
 
-    .info {
-      height: 80%;
-      width: 400px;
-      padding: 10px;
-      background: white;
-      border-radius: 4px;
-      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+    .logo {
+      position: fixed;
+      bottom: 20px;
+      right: 0px;
+    }
+
+    .lab-logo {
+      opacity: 0.66;
+      width: 150px;
     }
 
     .leaflet-control-zoom {
@@ -45,20 +50,25 @@
 
     var rallys = [];
 
-    var map = L.map('map', { zoomControl: false }).setView([51.3406321, 12.3747329], 12);
+    var map = L.map('map').setView([51.3406321, 12.3747329], 12);
 
-    L.control.zoom({
-      position: 'bottomright'
-    }).addTo(map);
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
       {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
       }
     ).addTo(map);
 
+    var logo = L.control();
+    logo.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'logo');
+      var htmlInner = '<a href="https://github.com/CodeforLeipzig/rallymap" alt="Quellcode"><img class="lab-logo" src="https://codefor.de/labs/hexagon/CodeFor-leipzig.svg" alt="Logo OK Lab Leipzig"></a>'
+      this._div.innerHTML = htmlInner;
+      return this._div;
+    }
+    logo.addTo(map);
+
     rallys.forEach((rally) => {
-      var demotrailsLayer = L.geoJSON(rally, {
+      var rallyLayer = L.geoJSON(rally, {
         style: (feature) => {
           return {
             color: rally.features[0].properties.colorHex,
@@ -67,66 +77,23 @@
           };
         },
       });
-      demotrailsLayer.addTo(map);
-
-      demotrailsLayer.on('mouseover', function (e) {
-        highlightFeature(e);
+      rallyLayer.bindPopup(function (layer) {
+        return rallyInfo(layer);
       });
-      demotrailsLayer.on('mouseout', function (e) {
-        resetHighlight(e);
-      });
+      rallyLayer.addTo(map);
     });
 
-    // control that shows state info on hover
-    var info = L.control();
-
-    info.onAdd = function (map) {
-      this._div = L.DomUtil.create('div', 'info');
-      this.update();
-      return this._div;
-    };
-
-    info.update = function (props) {
-      var htmlInner = '<div">';
-      if (props) {
-        if (props.locationName) {
-          htmlInner += '<h4>' + props.locationName + '</h4>';
-        }
-        var fieldFun = (key) => {
-          if (props[key]) {
-            htmlInner += '<div><b>' + key + '</b>: ' + props[key] + '</div><br />';
-          }
-        }
-        var fields = [
-          "lfd. Nr", "Datum", "angezeigter Ort / Route", "angezeigte Zeit (von; bis)", "Veranstalter", "Art", "Thema/Motto", "Teilnehmer angezeigt", "Teilnehmer festgestellt", "Bemerkungen"
-        ];
-        fields.forEach(field => fieldFun(field));
-
-      } else {
-        htmlInner += '<p>Mit dem Mauszeiger über einen Marker/Strecke gehen, um Details anzuzeigen</p>'
-      }
-      htmlInner += '</div>';
-      this._div.innerHTML = htmlInner;
-    };
-
-    info.addTo(map);
-
-    function highlightFeature(e) {
-      var layer = e.target;
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-      }
-      layer.setStyle({ weight: 7, opacity: 1.0 });
-
-      info.update(e.layer.feature.properties);
-    }
-
-    function resetHighlight(e) {
-      var layer = e.target;
-
-      layer.setStyle({ weight: 5, opacity: 0.8 });
-
-      info.update();
+    function rallyInfo(layer) {
+      var htmlInner = '<p>';
+      htmlInner += '<h3>' + layer.feature.properties['Thema/Motto'] + '</h3>';
+      htmlInner += '<b>📅 Datum:</b> ' + layer.feature.properties['Datum'] + '<br/>';
+      htmlInner += '<b>⏰ Uhrzeit:</b> ' + layer.feature.properties['angezeigte Zeit (von; bis)'] + '<br/>';
+      htmlInner += '<b>📣 Veranstalter:</b> ' + layer.feature.properties['Veranstalter'] + '<br/>';
+      htmlInner += '<b>🧭 Art:</b> ' + layer.feature.properties['Art'] + '<br/>';
+      htmlInner += '<b>📍 Ort/Route:</b> ' + layer.feature.properties['angezeigter Ort / Route'] + '<br/>';
+      htmlInner += '<b>👥 Teilnehmer:</b> ' + layer.feature.properties['Teilnehmer angezeigt'] + '<br/>';
+      htmlInner += '</p>';
+      return htmlInner;
     }
   </script>
 </body>
