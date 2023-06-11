@@ -96,28 +96,42 @@
     }).addTo(this.map);
 
     function onSelectDate(value) {
-      var dateSelected = moment(value, "YYYY-MM-DD");
-      rallysLayerGroup.clearLayers();
-      rallys.forEach((rally) => {
-        var dateRally = moment(rally.features[0].properties.Datum, "D/M/YY");
-        if (dateRally.isSame(dateSelected)) {
-          var rallyLayer = L.geoJSON(rally, {
-            style: (feature) => {
-              return {
-                color: rally.features[0].properties.colorHex,
-                weight: 5,
-                opacity: 0.8
-              };
-            },
-          });
-          rallyLayer.bindPopup(function (layer) {
-            return rallyInfo(layer);
-          });
+      if (!value) {
+        rallysLayerGroup.clearLayers();
+        rallys.forEach((rally) => {
+          var rallyLayer = createRallyLayer(rally);
           rallysLayerGroup.addLayer(rallyLayer);
-        }
-      });
+        });
+      }
+      else {
+        var dateSelected = moment(value, "YYYY-MM-DD");
+        rallysLayerGroup.clearLayers();
+        rallys.forEach((rally) => {
+          var dateRally = moment(rally.features[0].properties.Datum, "D/M/YY");
+          if (dateRally.isSame(dateSelected)) {
+            var rallyLayer = createRallyLayer(rally);
+            rallysLayerGroup.addLayer(rallyLayer);
+          }
+        });
+      }
       rallysLayerGroup.addTo(map);
     };
+
+    function createRallyLayer(rally) {
+      var rallyLayer = L.geoJSON(rally, {
+        style: (feature) => {
+          return {
+            color: rally.features[0].properties.colorHex,
+            weight: 5,
+            opacity: 0.8
+          };
+        },
+      });
+      rallyLayer.bindPopup(function (layer) {
+        return rallyInfo(layer);
+      });
+      return rallyLayer;
+    }
 
     function rallyInfo(layer) {
       var htmlInner = '<p>';
