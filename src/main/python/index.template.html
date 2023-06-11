@@ -61,9 +61,12 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script
     src="https://rawcdn.githack.com/antoniovlx/leaflet-calendar/251d645b2b852ff86cc4b66d4b1d4a4866827efa/js/leaflet-calendar.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/locale/de.min.js"></script>
 
   <script>
+
+    moment.locale('de');
 
     var rallys = [];
     var rallysLayerGroup = L.layerGroup();
@@ -136,7 +139,7 @@
     function rallyInfo(layer) {
       var htmlInner = '<p>';
       htmlInner += '<h3>' + layer.feature.properties['Thema/Motto'] + '</h3>';
-      htmlInner += '<b>📅 Datum:</b> ' + layer.feature.properties['Datum'] + '<br/>';
+      htmlInner += '<b>📅 Datum:</b> ' + moment(layer.feature.properties['Datum'], 'D/M/YY').format('LL') + '<br/>';
       htmlInner += '<b>⏰ Uhrzeit:</b> ' + layer.feature.properties['angezeigte Zeit (von; bis)'] + '<br/>';
       htmlInner += '<b>📣 Veranstalter:</b> ' + layer.feature.properties['Veranstalter'] + '<br/>';
       htmlInner += '<b>🧭 Art:</b> ' + layer.feature.properties['Art'] + '<br/>';
