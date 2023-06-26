@@ -13,16 +13,16 @@ nominatimUrl = 'https://nominatim.openstreetmap.org/search.php?format=jsonv2&q='
 orsGeocodeUrl = f'https://api.openrouteservice.org/geocode/search?api_key={ORS_API_KEY}&text='
 orsDirectionsUrl = 'https://api.openrouteservice.org/v2/directions/foot-walking/geojson'
 
-inputCsv = os.path.join(script_dir, '../resources/Versammlungsgeschehen 24.03. bis 27.03.2023_Presse.csv')
+inputCsv = os.path.join(script_dir, '../resources/rallies.csv')
 
-print ('Load rallys...')
+print ('Load rallies...')
 
 with open(inputCsv) as csvfile:
-  rallysCsv = csv.reader(csvfile, delimiter=';', quotechar='"')
-  rallysJson = []
+  ralliesCsv = csv.reader(csvfile, delimiter=';', quotechar='"')
+  ralliesJson = []
 
   i = 1
-  for rallyCsv in rallysCsv:
+  for rallyCsv in ralliesCsv:
     print(f'Resolving route of rally {i}...')
     rallyGeojson = None
     rallyCoordinates = []
@@ -70,9 +70,9 @@ with open(inputCsv) as csvfile:
     rallyGeojson['features'][0]['properties']['Teilnehmer angezeigt'] = rallyCsv[8]
     rallyGeojson['features'][0]['properties']['colorHex'] = '#' + hashlib.md5(json.dumps(rallyGeojson).encode()).hexdigest()[-6:]
 
-    rallysJson.append(rallyGeojson)
+    ralliesJson.append(rallyGeojson)
 
-    with open(os.path.join(script_dir, f'../resources/Rally {i} - Versammlungsgeschehen 24.03. bis 27.03.2023_Presse.geojson'), 'w') as f:
+    with open(os.path.join(script_dir, f'../resources/Rally {i}.geojson'), 'w') as f:
       json.dump(rallyGeojson, f, indent=2)
 
     i = i + 1
@@ -80,5 +80,5 @@ with open(inputCsv) as csvfile:
   indexHtml = open(os.path.join(script_dir, '../../../docs/index.html'), 'w')
   with open(os.path.join(script_dir, 'index.template.html'), 'r') as htmlTemplate:
     for line in htmlTemplate:
-      indexHtml.write(line.replace('var rallys = [];', f'var rallys = {json.dumps(rallysJson)};'))
+      indexHtml.write(line.replace('var rallies = [];', f'var rallies = {json.dumps(ralliesJson)};'))
   indexHtml.close()

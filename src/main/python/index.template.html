@@ -68,8 +68,8 @@
 
     moment.locale('de');
 
-    var rallys = [];
-    var rallysLayerGroup = L.layerGroup();
+    var rallies = [];
+    var ralliesLayerGroup = L.layerGroup();
 
     var map = L.map('map', { zoomControl: false }).setView([51.3406321, 12.3747329], 13);
 
@@ -100,24 +100,24 @@
 
     function onSelectDate(value) {
       if (!value) {
-        rallysLayerGroup.clearLayers();
-        rallys.forEach((rally) => {
+        ralliesLayerGroup.clearLayers();
+        rallies.forEach((rally) => {
           var rallyLayer = createRallyLayer(rally);
-          rallysLayerGroup.addLayer(rallyLayer);
+          ralliesLayerGroup.addLayer(rallyLayer);
         });
       }
       else {
         var dateSelected = moment(value, "YYYY-MM-DD");
-        rallysLayerGroup.clearLayers();
-        rallys.forEach((rally) => {
+        ralliesLayerGroup.clearLayers();
+        rallies.forEach((rally) => {
           var dateRally = moment(rally.features[0].properties.Datum, "D/M/YY");
           if (dateRally.isSame(dateSelected)) {
             var rallyLayer = createRallyLayer(rally);
-            rallysLayerGroup.addLayer(rallyLayer);
+            ralliesLayerGroup.addLayer(rallyLayer);
           }
         });
       }
-      rallysLayerGroup.addTo(map);
+      ralliesLayerGroup.addTo(map);
     };
 
     function createRallyLayer(rally) {

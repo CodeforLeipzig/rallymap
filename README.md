@@ -1,6 +1,6 @@
 # Rallymap
 
-Demo to visualize rallys in Leipzig.
+Demo to visualize rallies in Leipzig.
 
 ## Usage
 

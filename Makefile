@@ -17,9 +17,9 @@ export
 build:
 	docker build --tag "rallymap-python" src/main/docker/python
 
-## load rallys
+## load rallies
 load:
-	@docker run -it --rm --name rallymap-load-rallys -e "ORS_API_KEY=${ORS_API_KEY}" -v "${PWD}":/usr/src/app -w /usr/src/app rallymap-python python src/main/python/load_rallys.py
+	@docker run -it --rm --name rallymap-load-rallies -e "ORS_API_KEY=${ORS_API_KEY}" -v "${PWD}":/usr/src/app -w /usr/src/app rallymap-python python src/main/python/load_rallies.py
 
 #############################
 ## Help Target             ##
